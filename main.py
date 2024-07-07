@@ -51,10 +51,14 @@ def run_time():
 			# Read from the capture object and generate pose results
 			ret, image = capture.read()
 			image_height, image_width, _ = image.shape
-			results = pose.process(image)
 		
 			# Verify on_mouse_press has triggered for both points, properly forming bounding box
 			if point_1 and point_2:
+				x1, y1 = point_1
+				x2, y2 = point_2
+				subframe = image[y1:y2, x1:x2]
+				results = pose.process(subframe)
+				cv2.imshow("Subframe", subframe)
 
 				# If in bounds draw green rectangle and try to save frame.
 				if landmark_in_bound(results, image_width, image_height):
@@ -62,7 +66,7 @@ def run_time():
 					try:
 						time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 						os.mkdir(f"images/{time_stamp}") 
-						cv2.imwrite(f"images/{time_stamp}/image.png", image)
+						cv2.imwrite(f"images/{time_stamp}/{time_stamp}.png", image)
 						shutil.make_archive(f"images/{time_stamp}", "zip", f"images/{time_stamp}")
 
 						shutil.rmtree(f"images/{time_stamp}")
